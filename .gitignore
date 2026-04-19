@@ -71,3 +71,10 @@ poetry.lock
 
 # Logs
 *.log
+
+# Testing, Scripts and Output Files
+test_labels.py
+test_chunking_debug.py
+final_summary_output.md
+chunking_debug_output.txt
+export_graph.py

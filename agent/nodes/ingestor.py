@@ -5,6 +5,7 @@ from docling.datamodel.base_models import InputFormat
 def ingest_node(state: dict) -> dict:
     pipeline_opts = PdfPipelineOptions()
     pipeline_opts.do_ocr = True
+    pipeline_opts.do_table_structure = False
     converter = DocumentConverter(
         format_options={InputFormat.PDF:PdfFormatOption(pipeline_options=pipeline_opts)}
     )
@@ -14,10 +15,15 @@ def ingest_node(state: dict) -> dict:
     hierarchy = []
     raw_chunks = []
     current_path = ["Document Start"]
+    
+    # Let's count exactly what docling found
+    items_found = list(doc.iterate_items())
+    print(f"\n[DIAGNOSTIC] Docling produced {len(items_found)} internal items for {state['file_path']}")
 
-    for item, level in doc.iterate_items():
+    for item, level in items_found:
         text_content = item.text.strip() if hasattr(item, "text") and item.text else ""
-        if item.label.name in ["title", "section_header"]:
+        
+        if getattr(item.label, "name", "") in ["TITLE", "SECTION_HEADER"]:
             title=text_content
             lvl = level if level>0 else 1
             hierarchy.append({"level": lvl, "title": title})

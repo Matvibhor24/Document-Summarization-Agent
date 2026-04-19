@@ -22,10 +22,20 @@ def build_graph():
     g.add_edge(START, "ingest")
     g.add_edge("ingest", "normalizer")
     
-    # 1 (normalizer) --> N (summarizers)
-    g.add_conditional_edges("normalizer", fan_out_summaries, ["chunk_summarizer"])
+    # 1 normalizer --> N summarizers
+    g.add_conditional_edges("normalizer", fan_out_summaries)
     
-    # N (summarizers) --> 1 (compose)
+    # N summarizers --> 1 compose
     g.add_edge("chunk_summarizer", "compose")
     g.add_edge("compose", END)
     return g.compile()
+
+if __name__ == "__main__":
+    try:
+        graph = build_graph()
+        png_data = graph.get_graph().draw_mermaid_png()
+        with open("agent_graph.png", "wb") as f:
+            f.write(png_data)
+        print("Graph successfully saved as mermaid diagram")
+    except Exception as e:
+        print(f"Failed to export graph: {e}")
